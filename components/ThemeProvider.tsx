@@ -9,7 +9,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   // Read saved preference on mount
   useEffect(() => {
-    if (typeof window === 'undefined') return
     const saved = localStorage.getItem('ln-theme') as Mode | null
     const preferred = saved ?? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
     setMode(preferred)
