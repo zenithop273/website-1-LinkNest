@@ -5,17 +5,22 @@ import { eq, and } from 'drizzle-orm'
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = await params
     const payload = await verifyJWT(getTokenFromHeader(req.headers.get('authorization')) || '')
     if (!payload) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const body = await req.json()
+    const { id } = await params
+    const { title, url, icon, category, position, isActive, scheduledStart, scheduledEnd, linkPassword } = await req.json()
+
     const updateData: Record<string, unknown> = { updatedAt: new Date() }
-    if (body.title !== undefined) updateData.title = body.title
-    if (body.url !== undefined) updateData.url = body.url
-    if (body.icon !== undefined) updateData.icon = body.icon
-    if (body.category !== undefined) updateData.category = body.category
-    if (body.isActive !== undefined) updateData.isActive = body.isActive
+    if (title !== undefined) updateData.title = title
+    if (url !== undefined) updateData.url = url
+    if (icon !== undefined) updateData.icon = icon
+    if (category !== undefined) updateData.category = category
+    if (position !== undefined) updateData.position = position
+    if (isActive !== undefined) updateData.isActive = isActive
+    if (scheduledStart !== undefined) updateData.scheduledStart = scheduledStart ? new Date(scheduledStart) : null
+    if (scheduledEnd !== undefined) updateData.scheduledEnd = scheduledEnd ? new Date(scheduledEnd) : null
+    if (linkPassword !== undefined) updateData.linkPassword = linkPassword || null
 
     const [updated] = await db.update(links)
       .set(updateData)
@@ -32,11 +37,15 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = await params
     const payload = await verifyJWT(getTokenFromHeader(req.headers.get('authorization')) || '')
     if (!payload) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    await db.delete(links).where(and(eq(links.id, id), eq(links.userId, payload.userId)))
+    const { id } = await params
+    const deleted = await db.delete(links)
+      .where(and(eq(links.id, id), eq(links.userId, payload.userId)))
+      .returning()
+
+    if (deleted.length === 0) return NextResponse.json({ error: 'Link not found' }, { status: 404 })
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Link DELETE error:', error)
