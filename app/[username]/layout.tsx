@@ -2,50 +2,47 @@ import type { Metadata } from 'next'
 import { db, users } from '@/db'
 import { eq } from 'drizzle-orm'
 
-export async function generateMetadata(
-  { params }: { params: Promise<{ username: string }> }
-): Promise<Metadata> {
+interface Props {
+  params: Promise<{ username: string }>
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { username } = await params
+  const [user] = await db.select().from(users).where(eq(users.username, username.toLowerCase())).limit(1)
 
-  try {
-    const [user] = await db.select().from(users).where(eq(users.username, username.toLowerCase())).limit(1)
-
-    if (!user) {
-      return {
-        title: `@${username} — LinkNest`,
-        description: 'This profile does not exist on LinkNest.',
-      }
-    }
-
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://linknest.app'
-    const profileUrl = `${siteUrl}/${user.username}`
-    const title = `${user.name} (@${user.username}) — LinkNest`
-    const description = user.bio
-      ? `${user.bio} — Check out all my links on LinkNest.`
-      : `Check out ${user.name}'s links on LinkNest — all in one place.`
-    const image = user.profileImage || `${siteUrl}/og-default.png`
-
+  if (!user) {
     return {
+      title: 'Profile not found — LinkNest',
+      description: 'This profile does not exist on LinkNest.',
+    }
+  }
+
+  const title = `${user.name} (@${user.username}) — LinkNest`
+  const description = user.bio
+    ? `${user.bio} | Find all links from ${user.name} on LinkNest.`
+    : `Check out ${user.name}'s links on LinkNest — portfolio, social media, and more.`
+  const profileUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://linknest.app'}/${username}`
+  const avatar = user.profileImage || undefined
+
+  return {
+    title,
+    description,
+    openGraph: {
       title,
       description,
-      openGraph: {
-        type: 'profile',
-        url: profileUrl,
-        title,
-        description,
-        images: [{ url: image, width: 400, height: 400, alt: user.name }],
-        siteName: 'LinkNest',
-      },
-      twitter: {
-        card: 'summary',
-        title,
-        description,
-        images: [image],
-      },
-      alternates: { canonical: profileUrl },
-    }
-  } catch {
-    return { title: `@${username} — LinkNest` }
+      url: profileUrl,
+      siteName: 'LinkNest',
+      type: 'profile',
+      ...(avatar ? { images: [{ url: avatar, width: 400, height: 400, alt: user.name }] } : {}),
+    },
+    twitter: {
+      card: 'summary',
+      title,
+      description,
+      ...(avatar ? { images: [avatar] } : {}),
+    },
+    alternates: { canonical: profileUrl },
+    robots: { index: true, follow: true },
   }
 }
 
