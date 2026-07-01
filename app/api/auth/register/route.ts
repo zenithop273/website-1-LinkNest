@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db, users } from '@/db'
-import { hashPassword, signJWT } from '@/lib/auth'
+import { hashPassword } from '@/lib/auth'
+import { generateOTP, sendVerificationEmail } from '@/lib/email'
 import { eq } from 'drizzle-orm'
 
 export async function POST(req: NextRequest) {
@@ -28,29 +29,26 @@ export async function POST(req: NextRequest) {
     }
 
     const passwordHash = await hashPassword(password)
+    const otp = generateOTP()
+    const expiry = new Date(Date.now() + 15 * 60 * 1000) // 15 min
 
     const [newUser] = await db.insert(users).values({
       name,
       email: email.toLowerCase(),
       passwordHash,
       username: username.toLowerCase(),
-      emailVerified: true,
+      emailVerified: false,
+      verifyToken: otp,
+      verifyTokenExpiry: expiry,
     }).returning()
 
-    const token = await signJWT({ userId: newUser.id, email: newUser.email, username: newUser.username })
+    // Send OTP email (non-blocking — don't fail registration if email fails)
+    await sendVerificationEmail(newUser.email, newUser.name, otp)
 
     return NextResponse.json({
-      token,
-      user: {
-        id: newUser.id,
-        name: newUser.name,
-        email: newUser.email,
-        username: newUser.username,
-        bio: newUser.bio ?? '',
-        profileImage: newUser.profileImage ?? '',
-        theme: newUser.theme ?? 'default',
-        emailVerified: true,
-      },
+      message: 'Account created. Please verify your email.',
+      email: newUser.email,
+      userId: newUser.id,
     }, { status: 201 })
   } catch (error) {
     console.error('Register error:', error)
