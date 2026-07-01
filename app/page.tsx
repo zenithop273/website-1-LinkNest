@@ -92,7 +92,7 @@ export default function LandingPage() {
             <div className="flex flex-col items-center gap-3 mb-6">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-indigo-500/30">A</div>
               <div className="text-center">
-                <p className="font-bold text-lg">Goku</p>
+                <p className="font-bold text-lg">Ankit Sharma</p>
                 <p className="text-muted-foreground text-sm">Full-Stack Developer & Designer</p>
               </div>
             </div>
