@@ -11,7 +11,7 @@ Already up to date
 │   to run scripts.                                                            │
 │                                                                              │
 ╰──────────────────────────────────────────────────────────────────────────────╯
-Done in 2.2s using pnpm v10.33.4
+Done in 5.7s using pnpm v10.33.4
 
 ┌─────────────────────────────┐
 │ OpenNext — Cloudflare build │
@@ -31,26 +31,25 @@ WARN workerd compatibility_date: 2025-03-01, consider updating your wrangler con
 > vibe-next-template@0.1.0 build /home/ubuntu/workspace/project
 > next build
 
-[dotenv@17.3.1] injecting env (22) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.3.1] injecting env (19) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
 ▲ Next.js 16.2.6 (Turbopack)
 - Environments: .env.production, .env
 
   Creating an optimized production build ...
-[dotenv@17.3.1] injecting env (22) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
-✓ Compiled successfully in 8.3s
+[dotenv@17.3.1] injecting env (19) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+✓ Compiled successfully in 13.8s
   Skipping validation of types
-  Finished TypeScript config validation in 24ms ...
+  Finished TypeScript config validation in 91ms ...
   Collecting page data using 3 workers ...
-  Generating static pages using 3 workers (0/42) ...
-  Generating static pages using 3 workers (10/42) 
-  Generating static pages using 3 workers (20/42) 
+  Generating static pages using 3 workers (0/41) ...
+  Generating static pages using 3 workers (10/41) 
+  Generating static pages using 3 workers (20/41) 
 ReferenceError: location is not defined
-    at <unknown> (.next/server/chunks/ssr/_0amz4c~._.js:1:5633)
-  Generating static pages using 3 workers (31/42) 
+    at <unknown> (.next/server/chunks/ssr/_0l5l..w._.js:1:6801)
 ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/reset-password". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
     at S (/home/ubuntu/workspace/project/.next/server/chunks/ssr/0z~i_next_0ta2mmv._.js:2:2692)
     at r (/home/ubuntu/workspace/project/.next/server/chunks/ssr/0z~i_next_0ta2mmv._.js:4:6757)
-    at /home/ubuntu/workspace/project/.next/server/chunks/ssr/_12ln889._.js:1:1355
+    at /home/ubuntu/workspace/project/.next/server/chunks/ssr/_0~dm8_3._.js:1:3051
     at an (/home/ubuntu/workspace/project/node_modules/.pnpm/next@16.2.6_@babel+core@7.29.0_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:2:84267)
     at ai (/home/ubuntu/workspace/project/node_modules/.pnpm/next@16.2.6_@babel+core@7.29.0_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:2:86086)
     at al (/home/ubuntu/workspace/project/node_modules/.pnpm/next@16.2.6_@babel+core@7.29.0_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:2:107860)
@@ -77,7 +76,7 @@ Error: Command failed: pnpm build
   status: 1,
   signal: null,
   output: [ null, null, null ],
-  pid: 2057,
+  pid: 2502,
   stdout: null,
   stderr: null
 }
