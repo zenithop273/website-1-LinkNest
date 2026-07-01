@@ -9,9 +9,6 @@ import {
 import { useAuth, authFetch } from '@/hooks/useAuth'
 import { QRModal } from '@/components/QRModal'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { MobileSidebar } from '@/components/MobileSidebar'
-import { useToastNotify } from '@/components/Toast'
-import { DashboardSkeleton } from '@/components/Skeleton'
 
 interface LinkItem {
   id: string
@@ -47,12 +44,10 @@ export default function DashboardPage() {
   const [showAddModal, setShowAddModal] = useState(false)
   const [editLink, setEditLink] = useState<LinkItem | null>(null)
   const [copied, setCopied] = useState(false)
-  const [copiedLinkId, setCopiedLinkId] = useState<string | null>(null)
   const [form, setForm] = useState({ title: '', url: '', icon: 'link', category: 'general' })
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState('')
   const [showQR, setShowQR] = useState(false)
-  const { success: toastSuccess, error: toastError, info: toastInfo } = useToastNotify()
 
   // Drag & drop state
   const dragIndexRef = useRef<number | null>(null)
@@ -85,7 +80,6 @@ export default function DashboardPage() {
       setLinks(l => [...l, data])
       setShowAddModal(false)
       setForm({ title: '', url: '', icon: 'link', category: 'general' })
-      toastSuccess('Link added!')
     } finally {
       setSaving(false)
     }
@@ -105,7 +99,6 @@ export default function DashboardPage() {
       if (!res.ok) { setFormError(data.error); return }
       setLinks(l => l.map(link => link.id === data.id ? data : link))
       setEditLink(null)
-      toastSuccess('Link updated!')
     } finally {
       setSaving(false)
     }
@@ -114,7 +107,7 @@ export default function DashboardPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this link?')) return
     const res = await authFetch(`/api/links/${id}`, { method: 'DELETE' })
-    if (res.ok) { setLinks(l => l.filter(link => link.id !== id)); toastError('Link deleted') }
+    if (res.ok) setLinks(l => l.filter(link => link.id !== id))
   }
 
   const toggleActive = async (link: LinkItem) => {
@@ -132,15 +125,7 @@ export default function DashboardPage() {
     const url = `${window.location.origin}/${user?.username}`
     navigator.clipboard.writeText(url)
     setCopied(true)
-    toastSuccess('Profile URL copied!')
     setTimeout(() => setCopied(false), 2000)
-  }
-
-  const copyLinkUrl = (link: LinkItem) => {
-    navigator.clipboard.writeText(link.url)
-    setCopiedLinkId(link.id)
-    toastInfo(`Copied: ${link.title}`)
-    setTimeout(() => setCopiedLinkId(null), 2000)
   }
 
   const handleDragStart = (index: number) => {
@@ -254,12 +239,9 @@ export default function DashboardPage() {
         <main className="flex-1 md:ml-64 p-4 sm:p-6 lg:p-8">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-3">
-              <MobileSidebar user={user} onLogout={() => { logout(); router.push('/login') }} />
-              <div>
-                <h1 className="text-2xl font-bold">My Links</h1>
-                <p className="text-muted-foreground text-sm mt-1">{links.length} link{links.length !== 1 ? 's' : ''} in your profile</p>
-              </div>
+            <div>
+              <h1 className="text-2xl font-bold">My Links</h1>
+              <p className="text-muted-foreground text-sm mt-1">{links.length} link{links.length !== 1 ? 's' : ''} in your profile</p>
             </div>
             <div className="flex items-center gap-3">
               <button onClick={copyProfileUrl}
@@ -280,7 +262,9 @@ export default function DashboardPage() {
 
           {/* Links List */}
           {loading ? (
-            <DashboardSkeleton />
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
           ) : links.length === 0 ? (
             <div className="text-center py-20">
               <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
@@ -345,10 +329,6 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                      <button onClick={() => copyLinkUrl(link)}
-                        className="p-2 rounded-lg hover:bg-secondary/60 text-muted-foreground hover:text-foreground transition-all" title="Copy URL">
-                        {copiedLinkId === link.id ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
-                      </button>
                       <a href={link.url} target="_blank" rel="noopener noreferrer"
                         className="p-2 rounded-lg hover:bg-secondary/60 text-muted-foreground hover:text-foreground transition-all">
                         <ExternalLink className="w-4 h-4" />
